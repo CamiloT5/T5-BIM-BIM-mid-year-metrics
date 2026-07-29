@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>T5 BIM/VDC 2026 Mid-Year Executive Charts</title>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+
+  <style>
+    :root {
+      --navy: #17365d;
+      --blue: #2f75b5;
+      --light-blue: #5b9bd5;
+      --teal: #00a6a6;
+      --green: #70ad47;
+      --gold: #ffc000;
+      --orange: #ed7d31;
+      --red: #c00000;
+      --gray: #7f8c8d;
+      --light-gray: #eef2f6;
+      --text: #1f2937;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      padding: 32px;
+      background: #f5f7fa;
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    header {
+      max-width: 1400px;
+      margin: 0 auto 28px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      color: var(--navy);
+      font-size: 32px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: #5f6b78;
+      font-size: 16px;
+    }
+
+    .dashboard {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 24px;
+    }
+
+    .chart-card {
+      background: white;
+      border: 1px solid #dce3ea;
+      border-radius: 14px;
+      padding: 22px;
+      min-height: 460px;
+      box-shadow: 0 6px 20px rgba(23, 54, 93, 0.08);
+      page-break-inside: avoid;
+    }
+
+    .chart-card.full-width {
+      grid-column: 1 / -1;
+      min-height: 520px;
+    }
+
+    .chart-card h2 {
+      margin: 0 0 6px;
+      color: var(--navy);
+      font-size: 22px;
+    }
+
+    .chart-card p {
+      margin: 0 0 18px;
+      color: #667085;
+      font-size: 14px;
+    }
+
+    .chart-wrap {
+      position: relative;
+      height: 350px;
+    }
+
+    .full-width .chart-wrap {
+      height: 410px;
+    }
+
+    .note {
+      max-width: 1400px;
+      margin: 24px auto 0;
+      padding: 16px 18px;
+      border-left: 5px solid var(--blue);
+      background: white;
+      color: #475467;
+      font-size: 14px;
+    }
+
+    @media (max-width: 900px) {
+      body { padding: 18px; }
+      .dashboard { grid-template-columns: 1fr; }
+      .chart-card.full-width { grid-column: auto; }
+    }
+
+    @media print {
+      body { background: white; padding: 0; }
+      .dashboard { display: block; }
+      .chart-card {
+        margin-bottom: 24px;
+        box-shadow: none;
+        break-after: page;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>T5 BIM/VDC 2026 Mid-Year Executive Update</h1>
+    <p class="subtitle">
+      Department progress, project implementation, technology deployment, and business value.
+    </p>
+  </header>
+
+  <main class="dashboard">
+    <section class="chart-card">
+      <h2>Active BIM Portfolio</h2>
+      <p>Distribution of current BIM support across the T5 portfolio.</p>
+      <div class="chart-wrap">
+        <canvas id="portfolioChart"></canvas>
+      </div>
+    </section>
+
+    <section class="chart-card">
+      <h2>Department Focus</h2>
+      <p>Where BIM/VDC efforts are currently concentrated.</p>
+      <div class="chart-wrap">
+        <canvas id="focusChart"></canvas>
+      </div>
+    </section>
+
+    <section class="chart-card full-width">
+      <h2>Department Implementation Progress</h2>
+      <p>Estimated maturity of major BIM/VDC implementation initiatives at the half-year mark.</p>
+      <div class="chart-wrap">
+        <canvas id="implementationChart"></canvas>
+      </div>
+    </section>
+
+    <section class="chart-card full-width">
+      <h2>Project BIM Maturity</h2>
+      <p>Qualitative BIM implementation status by project and field-technology initiative.</p>
+      <div class="chart-wrap">
+        <canvas id="projectChart"></canvas>
+      </div>
+    </section>
+
+    <section class="chart-card full-width">
+      <h2>Technology Deployment</h2>
+      <p>Current implementation maturity across the digital-construction technology stack.</p>
+      <div class="chart-wrap">
+        <canvas id="technologyChart"></canvas>
+      </div>
+    </section>
+
+    <section class="chart-card">
+      <h2>Business Value Delivered</h2>
+      <p>Primary business outcomes supported by BIM/VDC.</p>
+      <div class="chart-wrap">
+        <canvas id="valueChart"></canvas>
+      </div>
+    </section>
+
+    <section class="chart-card">
+      <h2>Second-Half Priorities</h2>
+      <p>Recommended focus areas for the remainder of 2026.</p>
+      <div class="chart-wrap">
+        <canvas id="priorityChart"></canvas>
+      </div>
+    </section>
+  </main>
+
+  <div class="note">
+    The percentage-based charts are executive-level maturity estimates based on current implementation,
+    not audited construction progress or financial KPIs. Update the values in the JavaScript section as
+    formal metrics become available.
+  </div>
+
+  <script>
+    Chart.defaults.font.family = 'Arial, Helvetica, sans-serif';
+    Chart.defaults.color = '#344054';
+
+    const colors = [
+      '#17365d',
+      '#2f75b5',
+      '#5b9bd5',
+      '#00a6a6',
+      '#70ad47',
+      '#ffc000',
+      '#ed7d31',
+      '#c00000',
+      '#7f8c8d'
+    ];
+
+    const percentScale = {
+      beginAtZero: true,
+      max: 100,
+      ticks: {
+        callback: value => value + '%'
+      },
+      grid: {
+        color: '#e8edf3'
+      }
+    };
+
+    const horizontalPercentOptions = {
+      responsive: true,
+      maintainAspectRatio: false,
+      indexAxis: 'y',
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: context => context.raw + '%'
+          }
+        }
+      },
+      scales: {
+        x: percentScale,
+        y: {
+          grid: { display: false },
+          ticks: { autoSkip: false }
+        }
+      }
+    };
+
+    const pieOptions = {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: {
+            padding: 18,
+            usePointStyle: true
+          }
+        },
+        tooltip: {
+          callbacks: {
+            label: context => {
+              const values = context.dataset.data;
+              const total = values.reduce((sum, value) => sum + value, 0);
+              const percent = ((context.raw / total) * 100).toFixed(0);
+              return `${context.label}: ${context.raw} (${percent}%)`;
+            }
+          }
+        }
+      }
+    };
+
+    new Chart(document.getElementById('portfolioChart'), {
+      type: 'doughnut',
+      data: {
+        labels: [
+          'Active Coordination',
+          'Preconstruction / Design',
+          'Closeout / Field Technology'
+        ],
+        datasets: [{
+          data: [3, 5, 2],
+          backgroundColor: [colors[0], colors[2], colors[4]],
+          borderColor: '#ffffff',
+          borderWidth: 3
+        }]
+      },
+      options: {
+        ...pieOptions,
+        cutout: '55%'
+      }
+    });
+
+    new Chart(document.getElementById('focusChart'), {
+      type: 'pie',
+      data: {
+        labels: [
+          'Constructability & Coordination',
+          'Risk Elimination',
+          'Field Technology',
+          'Standards',
+          'Executive Reporting',
+          'Training'
+        ],
+        datasets: [{
+          data: [35, 25, 15, 10, 5, 10],
+          backgroundColor: colors.slice(0, 6),
+          borderColor: '#ffffff',
+          borderWidth: 2
+        }]
+      },
+      options: pieOptions
+    });
+
+    new Chart(document.getElementById('implementationChart'), {
+      type: 'bar',
+      data: {
+        labels: [
+          'Hybrid Department',
+          'Project BIM Support',
+          'BIM Standards',
+          'Executive Reporting',
+          'Laser Scanning',
+          'GPS Deployment',
+          'Procore BIM',
+          'AR Technology'
+        ],
+        datasets: [{
+          label: 'Implementation Progress',
+          data: [90, 90, 75, 45, 65, 60, 70, 30],
+          backgroundColor: colors[1],
+          borderRadius: 7
+        }]
+      },
+      options: horizontalPercentOptions
+    });
+
+    new Chart(document.getElementById('projectChart'), {
+      type: 'bar',
+      data: {
+        labels: [
+          'KMII',
+          'BOI2',
+          'QLVR Boise',
+          'QLVR Cheyenne',
+          'Bitfarms',
+          'Hannibal',
+          'CHI III',
+          'Core Scientific',
+          'ATL3 Technology'
+        ],
+        datasets: [{
+          label: 'BIM Maturity',
+          data: [90, 70, 55, 45, 50, 50, 65, 90, 80],
+          backgroundColor: colors[3],
+          borderRadius: 7
+        }]
+      },
+      options: horizontalPercentOptions
+    });
+
+    new Chart(document.getElementById('technologyChart'), {
+      type: 'bar',
+      data: {
+        labels: [
+          'Navisworks',
+          'Revit',
+          'Procore BIM',
+          'Laser Scanning',
+          'GPS Rover',
+          'Augmented Reality'
+        ],
+        datasets: [{
+          label: 'Deployment',
+          data: [100, 100, 75, 65, 60, 30],
+          backgroundColor: colors[4],
+          borderRadius: 7
+        }]
+      },
+      options: horizontalPercentOptions
+    });
+
+    new Chart(document.getElementById('valueChart'), {
+      type: 'doughnut',
+      data: {
+        labels: [
+          'Risk Reduction',
+          'Constructability',
+          'Schedule Protection',
+          'Quality Assurance',
+          'Technology Innovation'
+        ],
+        datasets: [{
+          data: [30, 25, 20, 15, 10],
+          backgroundColor: [colors[0], colors[1], colors[3], colors[4], colors[5]],
+          borderColor: '#ffffff',
+          borderWidth: 3
+        }]
+      },
+      options: {
+        ...pieOptions,
+        cutout: '55%'
+      }
+    });
+
+    new Chart(document.getElementById('priorityChart'), {
+      type: 'pie',
+      data: {
+        labels: [
+          'Standards & Governance',
+          'Executive Dashboard',
+          'Field Technology Expansion',
+          'Resource Planning',
+          'Earlier Project Engagement'
+        ],
+        datasets: [{
+          data: [25, 20, 20, 15, 20],
+          backgroundColor: [colors[0], colors[1], colors[3], colors[4], colors[6]],
+          borderColor: '#ffffff',
+          borderWidth: 2
+        }]
+      },
+      options: pieOptions
+    });
+  </script>
+</body>
+</html>
